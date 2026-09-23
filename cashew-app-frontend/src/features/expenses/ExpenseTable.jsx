@@ -4,7 +4,7 @@ import {
   TableHead, TableRow, Paper, IconButton,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { selectAllExpenses, expenseDeleted } from './expensesSlice';
+import { selectAllExpenses, deleteExpense } from './expensesSlice';
 
 export default function ExpenseTable() {
   const expenses = useSelector(selectAllExpenses);
@@ -28,9 +28,9 @@ export default function ExpenseTable() {
               <TableCell>{expense.description}</TableCell>
               <TableCell>{expense.category}</TableCell>
               <TableCell>{expense.date}</TableCell>
-              <TableCell align="right">${expense.amount.toFixed(2)}</TableCell>
+              <TableCell align="right">${Number(expense.amount).toFixed(2)}</TableCell>
               <TableCell align="right">
-                <IconButton onClick={() => dispatch(expenseDeleted(expense.id))}>
+                <IconButton onClick={() => dispatch(deleteExpense(expense.id))}>
                   <DeleteIcon />
                 </IconButton>
               </TableCell>

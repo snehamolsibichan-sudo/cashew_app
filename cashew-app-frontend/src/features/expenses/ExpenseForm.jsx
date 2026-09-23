@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Box, TextField, MenuItem, Button, Stack } from '@mui/material';
-import { expenseAdded } from './expensesSlice';
+import { addExpense } from './expensesSlice';
 
 const categories = ['Food', 'Utilities', 'Transport', 'Entertainment', 'Other'];
 
@@ -15,7 +15,7 @@ export default function ExpenseForm() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!description || !amount || !date) return;
-    dispatch(expenseAdded(description, parseFloat(amount), category, date));
+    dispatch(addExpense({ description, amount: parseFloat(amount), category, date }));
     setDescription('');
     setAmount('');
     setDate('');

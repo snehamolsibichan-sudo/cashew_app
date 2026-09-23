@@ -1,35 +1,45 @@
-import { createSlice, nanoid } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import api from '../../services/api';
 
-const initialState = {
-  items: [
-    // temporary sample data so you have something to see
-    { id: nanoid(), description: 'Groceries', amount: 54.2, category: 'Food', date: '2026-09-10' },
-    { id: nanoid(), description: 'Electricity Bill', amount: 120, category: 'Utilities', date: '2026-09-12' },
-  ],
-};
+export const fetchExpenses = createAsyncThunk('expenses/fetch', async () => {
+  const res = await api.get('/expenses');
+  return res.data;
+});
+
+export const addExpense = createAsyncThunk('expenses/add', async (expense) => {
+  const res = await api.post('/expenses', expense);
+  return res.data;
+});
+
+export const deleteExpense = createAsyncThunk('expenses/delete', async (id) => {
+  await api.delete(`/expenses/${id}`);
+  return id;
+});
 
 const expensesSlice = createSlice({
   name: 'expenses',
-  initialState,
-  reducers: {
-    expenseAdded: {
-      reducer(state, action) {
-        state.items.push(action.payload);
-      },
-      prepare(description, amount, category, date) {
-        return {
-          payload: { id: nanoid(), description, amount, category, date },
-        };
-      },
-    },
-    expenseDeleted(state, action) {
-      state.items = state.items.filter(item => item.id !== action.payload);
-    },
+  initialState: { items: [], loading: false, error: null },
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchExpenses.pending, (state) => { state.loading = true; })
+      .addCase(fetchExpenses.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchExpenses.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(addExpense.fulfilled, (state, action) => {
+        state.items.unshift(action.payload);
+      })
+      .addCase(deleteExpense.fulfilled, (state, action) => {
+        state.items = state.items.filter((item) => item.id !== action.payload);
+      });
   },
 });
 
-export const { expenseAdded, expenseDeleted } = expensesSlice.actions;
 export default expensesSlice.reducer;
-
-// selectors
 export const selectAllExpenses = (state) => state.expenses.items;
+export const selectExpensesLoading = (state) => state.expenses.loading;
