@@ -6,9 +6,16 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { selectAllExpenses, deleteExpense } from './expensesSlice';
 
-export default function ExpenseTable() {
+export default function ExpenseTable({ filters }) {
   const expenses = useSelector(selectAllExpenses);
   const dispatch = useDispatch();
+
+  const filtered = expenses.filter((e) => {
+    if (filters.category !== 'All' && e.category !== filters.category) return false;
+    if (filters.from && e.date < filters.from) return false;
+    if (filters.to && e.date > filters.to) return false;
+    return true;
+  });
 
   return (
     <TableContainer component={Paper}>
@@ -23,7 +30,7 @@ export default function ExpenseTable() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {expenses.map((expense) => (
+          {filtered.map((expense) => (
             <TableRow key={expense.id}>
               <TableCell>{expense.description}</TableCell>
               <TableCell>{expense.category}</TableCell>
